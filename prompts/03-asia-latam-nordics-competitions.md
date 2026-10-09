@@ -7,6 +7,8 @@ discord_channel: "1485242054274711563"  # #tenders
 ---
 Search for large-scale architecture and masterplanning tenders across Asia & Pacific, South America, Switzerland & Nordics, and invited competitions. Post a digest to Discord channel 1485242054274711563 (#tenders).
 
+Date context: in every search query below, replace `{year}` with the current year.
+
 This is Part 3 of 3 in the weekly tender scan. Parts 1 (Europe/Middle East) and 2 (Africa/MDBs) posted earlier today.
 
 **What to look for:**
@@ -15,36 +17,36 @@ Focus on: masterplanning, mixed-use, civic/cultural buildings, urban design, pub
 **Search each region:**
 
 1. **Asia & Pacific:**
-   - Web search "architecture masterplan RFP competition tender 2026 Singapore OR India OR Vietnam OR Indonesia OR Philippines OR Malaysia OR Thailand"
-   - **Indonesia** — Fetch https://lpse.lkpp.go.id and web search "Indonesia Jakarta Nusantara architecture masterplan urban design consultant tender RFP 2026"
-   - **Malaysia** — Fetch https://www.eperolehan.gov.my and web search "Malaysia Kuala Lumpur architecture masterplan urban design consultant RFP tender 2026"
-   - **Vietnam** — Fetch https://muasamcong.mpi.gov.vn and web search "Vietnam Ho Chi Minh Hanoi architecture masterplan urban design consultant RFP 2026"
-   - **Philippines** — Fetch https://www.philgeps.gov.ph and web search "Philippines Manila architecture masterplan urban design consultant RFP 2026 ADB World Bank"
-   - **ADB** — Fetch https://www.adb.org/projects/tenders/list and web search "ADB Asian Development Bank architecture urban design masterplan consultant RFP 2026"
-   - Web search "Singapore URA BCA architecture design competition 2026"
-   - Web search "India CPWD smart city architecture masterplan RFP tender 2026"
-   - **Thailand** — Fetch https://www.gprocurement.go.th and web search "Thailand architecture masterplan urban design consultant RFP tender 2026 Bangkok"
-   - **Pakistan** — Web search "Pakistan architecture urban design masterplan consultant RFP 2026 World Bank ADB site:ppra.org.pk OR site:devex.com"
-   - **New Zealand** — Fetch https://www.gets.govt.nz/ExternalIndex.htm and web search "New Zealand architecture masterplan design tender RFP 2026"
-   - **Kazakhstan** — Web search "Kazakhstan architecture masterplan design RFP tender 2026 site:goszakup.gov.kz"; also web search "Astana Almaty masterplan architecture design consultant RFP 2026"
-   - **Uzbekistan** — Web search "Uzbekistan Tashkent architecture masterplan RFP tender 2026 site:uzex.uz"
+   - Web search "architecture masterplan RFP competition tender {year} Singapore OR India OR Vietnam OR Indonesia OR Philippines OR Malaysia OR Thailand"
+   - **Indonesia** — Fetch https://lpse.lkpp.go.id and web search "Indonesia Jakarta Nusantara architecture masterplan urban design consultant tender RFP {year}"
+   - **Malaysia** — Fetch https://www.eperolehan.gov.my and web search "Malaysia Kuala Lumpur architecture masterplan urban design consultant RFP tender {year}"
+   - **Vietnam** — Fetch https://muasamcong.mpi.gov.vn and web search "Vietnam Ho Chi Minh Hanoi architecture masterplan urban design consultant RFP {year}"
+   - **Philippines** — Fetch https://www.philgeps.gov.ph and web search "Philippines Manila architecture masterplan urban design consultant RFP {year} ADB World Bank"
+   - **ADB** — Fetch https://www.adb.org/projects/tenders/list and web search "ADB Asian Development Bank architecture urban design masterplan consultant RFP {year}"
+   - Web search "Singapore URA BCA architecture design competition {year}"
+   - Web search "India CPWD smart city architecture masterplan RFP tender {year}"
+   - **Thailand** — Fetch https://www.gprocurement.go.th and web search "Thailand architecture masterplan urban design consultant RFP tender {year} Bangkok"
+   - **Pakistan** — Web search "Pakistan architecture urban design masterplan consultant RFP {year} World Bank ADB site:ppra.org.pk OR site:devex.com"
+   - **New Zealand** — Fetch https://www.gets.govt.nz/ExternalIndex.htm and web search "New Zealand architecture masterplan design tender RFP {year}"
+   - **Kazakhstan** — Web search "Kazakhstan architecture masterplan design RFP tender {year} site:goszakup.gov.kz"; also web search "Astana Almaty masterplan architecture design consultant RFP {year}"
+   - **Uzbekistan** — Web search "Uzbekistan Tashkent architecture masterplan RFP tender {year} site:uzex.uz"
 
 2. **South America:**
-   - **IDB** — Fetch https://www.iadb.org/en/projects/procurement and web search "IDB Inter-American Development Bank architecture urban design masterplan consultant RFP 2026"
-   - **Brazil** — Fetch https://comprasnet.gov.br and web search "Brazil architecture masterplan urban design consultant tender RFP 2026 site:comprasnet.gov.br OR site:gov.br"
-   - **Colombia** — Fetch https://www.secop.gov.co and web search "Colombia architecture masterplan urban design consultant RFP 2026 site:secop2.gov.co"
-   - **Chile** — Fetch https://www.mercadopublico.cl and web search "Chile architecture masterplan urban design consultant RFP 2026"
+   - **IDB** — Fetch https://www.iadb.org/en/projects/procurement and web search "IDB Inter-American Development Bank architecture urban design masterplan consultant RFP {year}"
+   - **Brazil** — Fetch https://comprasnet.gov.br and web search "Brazil architecture masterplan urban design consultant tender RFP {year} site:comprasnet.gov.br OR site:gov.br"
+   - **Colombia** — Fetch https://www.secop.gov.co and web search "Colombia architecture masterplan urban design consultant RFP {year} site:secop2.gov.co"
+   - **Chile** — Fetch https://www.mercadopublico.cl and web search "Chile architecture masterplan urban design consultant RFP {year}"
 
 3. **Switzerland & Nordics:**
-   - **Switzerland** — Fetch https://www.simap.ch and web search "Switzerland architecture masterplan urban design consultant RFP tender 2026 Zurich Geneva Basel"
-   - **Norway** — Fetch https://www.doffin.no and web search "Norway architecture masterplan urban design consultant RFP tender 2026"
-   - **Sweden** — Fetch https://www.upphandlingsmyndigheten.se and web search "Sweden architecture masterplan urban design consultant RFP tender 2026 Stockholm Gothenburg"
-   - **Denmark** — Web search "Denmark architecture masterplan urban design consultant RFP tender 2026 site:udbud.dk"
-   - **Finland** — Web search "Finland architecture masterplan urban design consultant RFP tender 2026 site:hankintailmoitukset.fi"
+   - **Switzerland** — Fetch https://www.simap.ch and web search "Switzerland architecture masterplan urban design consultant RFP tender {year} Zurich Geneva Basel"
+   - **Norway** — Fetch https://www.doffin.no and web search "Norway architecture masterplan urban design consultant RFP tender {year}"
+   - **Sweden** — Fetch https://www.upphandlingsmyndigheten.se and web search "Sweden architecture masterplan urban design consultant RFP tender {year} Stockholm Gothenburg"
+   - **Denmark** — Web search "Denmark architecture masterplan urban design consultant RFP tender {year} site:udbud.dk"
+   - **Finland** — Web search "Finland architecture masterplan urban design consultant RFP tender {year} site:hankintailmoitukset.fi"
 
 4. **Invited & PQ competitions only** — Only flag competitions that require pre-qualification, credentials submission, or are invited/closed calls. Skip fully open public competitions.
-   - Web search "architecture design competition 2026 invited shortlist prequalification masterplan mixed-use"
-   - Web search "architecture competition 2026 restricted procedure PQ shortlist"
+   - Web search "architecture design competition {year} invited shortlist prequalification masterplan mixed-use"
+   - Web search "architecture competition {year} restricted procedure PQ shortlist"
    - Fetch https://competitions.archi — only flag entries mentioning "invited", "shortlist", "prequalification", "restricted", or "selected firms"
 
 **For each new opportunity found, extract and display:**

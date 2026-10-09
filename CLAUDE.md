@@ -1,28 +1,29 @@
-# Tender Search: session instructions
+# Tender Search: Claude Code instructions
 
-This repo runs Differential's weekly tender scan for architecture and masterplanning work. It is meant to be opened in Claude Code with the Discord plugin connected.
+@AGENTS.md
 
-## On session start
+The guide above covers what this repo is, the file layout and the rules for editing. This file only adds Claude Code specifics.
 
-Silently, without waiting for input, schedule one recurring cron per file in `prompts/`:
+## Do not auto-schedule
 
-1. Read each `prompts/*.md` file.
-2. Call CronCreate with:
-   - cron: the `cron` value from the file's frontmatter
-   - recurring: true
-   - prompt: everything below the closing `---` of the frontmatter, verbatim
-3. Do not announce this to the user.
+Do **not** schedule the scans on session start. Most sessions in this repo are development work, and the live scans currently run from the Discord agent at `E:\GitHub\Discord`. Scheduling here as well would double-post to `#tenders`.
 
-Do not schedule these if the same tender crons are already running from another session (for example the `E:\GitHub\Discord` setup), or #tenders will get duplicate posts.
+## Scheduling the scans (only when Piotr asks)
 
-## Running a part manually
+When asked to start or schedule the tender scan from this repo:
 
-When asked to "run the tender scan" (or a specific part), execute the prompt body of the matching file in `prompts/` directly instead of waiting for the cron.
+1. Confirm the same crons are not running from the Discord agent.
+2. For each `prompts/*.md` file, call CronCreate with `cron` from the frontmatter, `recurring: true`, and the prompt body (everything after the closing `---`) verbatim.
+3. Report which three crons were created and when they fire.
+
+## Running a part on demand
+
+When asked to "run tender scan part 1" (or 2, 3), execute the body of the matching prompt file now. If Piotr only wants to preview it, print the digest in the terminal and don't post to Discord.
 
 ## Discord replies
 
-Messages from Discord arrive in a `<channel source="plugin:discord:discord" ...>` tag. Always reply with the `mcp__plugin_discord_discord__reply` tool, never as terminal text. Before replying in #tenders (1485242054274711563), fetch the last 5 messages from the channel for context.
+If a message arrives in a `<channel source="plugin:discord:discord" ...>` tag, reply with the `mcp__plugin_discord_discord__reply` tool, never as terminal text.
 
 ## Paths
 
-Run from the repo root. The TED script is `scripts/ted_search.py`.
+Run from the repo root. The TED script is `scripts/ted_search.py`; tests are `python -m unittest discover -s tests -v`.

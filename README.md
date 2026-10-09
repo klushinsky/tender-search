@@ -4,9 +4,11 @@ Weekly scan for large-scale architecture and masterplanning tenders, run by Clau
 
 Every Friday morning it runs three regional passes. Each pass searches public procurement portals, development bank notices, developer RFPs and competition listings, filters for work that fits Differential, and posts a structured digest with a fit rating, effort level and deadline flags.
 
+**Agents picking this up:** start with [AGENTS.md](AGENTS.md).
+
 ## Schedule
 
-| Part | Runs (local time) | Coverage |
+| Part | Runs (Warsaw time) | Coverage |
 |---|---|---|
 | 1 | Fri 09:17 | Europe (TED API), Middle East and GCC developers, Australia, UK, Portugal, Western Balkans, South Caucasus |
 | 2 | Fri 10:00 | Development banks (World Bank, EBRD, IsDB, AFD, GIZ, UN-Habitat, Devex) and Africa by country, plus Ukraine reconstruction |
@@ -20,7 +22,7 @@ Part 1 also re-reads the last 30 posts in `#tenders` and flags anything with a d
 
 **Out of scope:** small single-family residential, pure engineering or MEP, maintenance contracts, geodetic surveying, cleaning and FM services.
 
-Value is not used as a hard filter outside the TED API pass (which uses a €250k floor), so small prestige competitions and EOIs with no stated value still come through if the typology fits.
+The TED pass drops contracts with a stated value under €250k. Everywhere else, value is not a hard filter, so small prestige competitions and EOIs with no stated value still come through if the typology fits.
 
 ## Digest format
 
@@ -46,31 +48,34 @@ prompts/
   03-asia-latam-nordics-competitions.md   Part 3 prompt + cron schedule
 scripts/
   ted_search.py                           TED (EU Official Journal) API query used by Part 1
-CLAUDE.md                                 Tells Claude Code to schedule the prompts on session start
+tests/
+  test_ted_search.py                      Offline tests for the TED script
+AGENTS.md                                 Handover guide for any coding agent
+CLAUDE.md                                 Claude Code runtime instructions
 ```
-
-Each prompt file has a small frontmatter block (`cron`, `discord_channel`) followed by the exact prompt Claude runs. Edit the prompt files to change sources, filters or output format.
 
 ## Running it
 
-1. Clone the repo, e.g. to `E:\GitHub\tender-search`.
-2. Open Claude Code in the repo folder with the Discord plugin connected.
-3. On start, `CLAUDE.md` tells Claude to schedule the three Friday crons from `prompts/`.
-4. To run a pass on demand, ask Claude to "run tender scan part 1" (or 2, 3).
-
-The TED script on its own:
+The TED script on its own (Python 3.8+, no dependencies, no API key):
 
 ```
-python scripts/ted_search.py <days_back> <min_value_eur>
-python scripts/ted_search.py 8 250000
+python scripts/ted_search.py 8 250000          # last 8 days, min €250k
+python scripts/ted_search.py 14 0 --json       # last 14 days, no value filter, JSON output
+python -m unittest discover -s tests -v        # offline tests
 ```
 
-## Where this came from
+The full scan: open Claude Code in the repo folder with the Discord plugin connected and ask it to run a part ("run tender scan part 1") or to schedule all three. It does not schedule anything on its own.
 
-The prompts were extracted from sections 5, 5b and 5c of `E:\GitHub\Discord\CLAUDE.md` (last edited 27 April 2026). That file still schedules the same three crons for the Discord agent, so only run one of the two setups at a time or `#tenders` gets duplicate posts. To hand over to this repo, remove sections 5, 5b and 5c from the Discord `CLAUDE.md`.
+## Status
 
-The only change from the original prompts: Part 1 now calls `scripts/ted_search.py` instead of `C:/Users/p/.claude/ted_search.py`.
+The live scans still run from the Discord agent setup at `E:\GitHub\Discord`, which has its own older copies of these prompts and of the script. This repo was extracted from it on 9 October 2026 and cleaned up. [AGENTS.md](AGENTS.md) explains how to switch the live setup over and lists open issues.
 
-## Known issues
+### Changes from the original setup
 
-- **Hardcoded year.** Most web search queries include "2026". They need updating (or switching to "current year") before January 2027 or results will skew to stale notices.
+- `ted_search.py` now pages through all results. Before, it sent no page size, so it only got back the API's first page.
+- The `min_value_eur` argument (`250000` in Part 1) is now applied. Before, it was ignored.
+- Deadline warnings (⚠️ within 21 days), notice-type labels and deadline sorting are now in the script output, as Part 1's prompt already assumed.
+- Titles keep any dashes that are part of the real title. Before, splitting on " - " could cut them short.
+- Literal "2026" in all 65 search queries replaced with a `{year}` placeholder.
+- Part 1's header and region grouping now include all regions it actually searches.
+- `--json` output and offline tests added.

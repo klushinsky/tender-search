@@ -7,6 +7,8 @@ discord_channel: "1485242054274711563"  # #tenders
 ---
 Search for large-scale architecture and masterplanning tenders from global development banks and African markets and post a digest to Discord channel 1485242054274711563 (#tenders).
 
+Date context: in every search query below, replace `{year}` with the current year.
+
 This is Part 2 of 3 in the weekly tender scan. Part 1 (Europe/Middle East) posted at 9:17. Part 3 (Asia/LatAm/Nordics) follows at 10:45.
 
 **What to look for:**
@@ -16,22 +18,22 @@ Focus on: masterplanning, mixed-use, civic/cultural buildings, urban design, pub
 
 **Global Development Banks:**
    - Fetch https://projects.worldbank.org/en/projects-operations/procurement (search "architectural services" and "urban planning" — consulting services only, not goods or civil works)
-   - Web search "World Bank AfDB urban design masterplan consultant RFP 2026 consulting services"
-   - Web search "UN-Habitat UNOPS architectural services RFP 2026"
-   - **EBRD** — Web search "site:ebrd.com/work-with-us/procurement architecture masterplan urban design 2026"; also web search "EBRD architecture design consultant RFP 2026"
-   - **IsDB** — Fetch https://isdb.org/procurement and web search "Islamic Development Bank architecture urban design masterplan consultant RFP 2026"
-   - **AFD** — Fetch https://www.afd.fr/en/calls-for-tenders and web search "AFD architecture urban design masterplan consultant RFP 2026"
-   - **GIZ** — Web search "site:devex.com GIZ architecture urban design masterplan consultant RFP 2026"
-   - **Devex.com** — Fetch https://www.devex.com/jobs/tenders and web search "site:devex.com architecture masterplan urban design consultant RFP 2026"
+   - Web search "World Bank AfDB urban design masterplan consultant RFP {year} consulting services"
+   - Web search "UN-Habitat UNOPS architectural services RFP {year}"
+   - **EBRD** — Web search "site:ebrd.com/work-with-us/procurement architecture masterplan urban design {year}"; also web search "EBRD architecture design consultant RFP {year}"
+   - **IsDB** — Fetch https://isdb.org/procurement and web search "Islamic Development Bank architecture urban design masterplan consultant RFP {year}"
+   - **AFD** — Fetch https://www.afd.fr/en/calls-for-tenders and web search "AFD architecture urban design masterplan consultant RFP {year}"
+   - **GIZ** — Web search "site:devex.com GIZ architecture urban design masterplan consultant RFP {year}"
+   - **Devex.com** — Fetch https://www.devex.com/jobs/tenders and web search "site:devex.com architecture masterplan urban design consultant RFP {year}"
 
 **Africa (by country):**
-   - **Rwanda/Kigali** — Fetch https://rppa.gov.rw and web search "Kigali Rwanda architecture masterplan design RFP 2026"
-   - **Kenya** — Fetch https://ppip.treasury.go.ke and web search "Nairobi Kenya architecture masterplan design RFP consultant 2026"
-   - **Nigeria** — Web search "Lagos Nigeria architecture masterplan design RFP tender 2026 site:bpp.gov.ng OR site:devex.com OR site:zawya.com"
-   - **South Africa** — Fetch https://www.etenders.gov.za and web search "South Africa architecture masterplan design competition RFP 2026"
-   - **Morocco** — Fetch https://www.marchespublics.gov.ma and web search "Morocco Casablanca Rabat Marrakech architecture masterplan urban design consultant RFP 2026"; also web search "AfDB Morocco architecture urban design consultant tender 2026"
-   - **Ethiopia** — Web search "Ethiopia Addis Ababa architecture masterplan urban design consultant RFP 2026 AfDB World Bank site:devex.com"
-   - **Ukraine (reconstruction)** — Fetch https://prozorro.gov.ua and web search "Ukraine reconstruction architecture urban design masterplan consultant RFP 2026 site:prozorro.gov.ua OR site:devex.com OR site:ebrd.com"; also web search "EU Ukraine Facility architecture urban design consultant RFP 2026"
+   - **Rwanda/Kigali** — Fetch https://rppa.gov.rw and web search "Kigali Rwanda architecture masterplan design RFP {year}"
+   - **Kenya** — Fetch https://ppip.treasury.go.ke and web search "Nairobi Kenya architecture masterplan design RFP consultant {year}"
+   - **Nigeria** — Web search "Lagos Nigeria architecture masterplan design RFP tender {year} site:bpp.gov.ng OR site:devex.com OR site:zawya.com"
+   - **South Africa** — Fetch https://www.etenders.gov.za and web search "South Africa architecture masterplan design competition RFP {year}"
+   - **Morocco** — Fetch https://www.marchespublics.gov.ma and web search "Morocco Casablanca Rabat Marrakech architecture masterplan urban design consultant RFP {year}"; also web search "AfDB Morocco architecture urban design consultant tender {year}"
+   - **Ethiopia** — Web search "Ethiopia Addis Ababa architecture masterplan urban design consultant RFP {year} AfDB World Bank site:devex.com"
+   - **Ukraine (reconstruction)** — Fetch https://prozorro.gov.ua and web search "Ukraine reconstruction architecture urban design masterplan consultant RFP {year} site:prozorro.gov.ua OR site:devex.com OR site:ebrd.com"; also web search "EU Ukraine Facility architecture urban design consultant RFP {year}"
 
 **For each new opportunity found, extract and display:**
 - **Bold project name** — 1-line description
