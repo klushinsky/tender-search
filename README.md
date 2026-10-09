@@ -59,7 +59,8 @@ CLAUDE.md                                 Claude Code runtime instructions
 The TED script on its own (Python 3.8+, no dependencies, no API key):
 
 ```
-python scripts/ted_search.py 8 250000          # last 8 days, min €250k
+python scripts/ted_search.py 8 250000          # last 8 days, min €250k, top 40 by relevance
+python scripts/ted_search.py 8 250000 --all    # every open notice, ranked
 python scripts/ted_search.py 14 0 --json       # last 14 days, no value filter, JSON output
 python -m unittest discover -s tests -v        # offline tests
 ```
@@ -78,4 +79,7 @@ The live scans still run from the Discord agent setup at `E:\GitHub\Discord`, wh
 - Titles keep any dashes that are part of the real title. Before, splitting on " - " could cut them short.
 - Literal "2026" in all 65 search queries replaced with a `{year}` placeholder.
 - Part 1's header and region grouping now include all regions it actually searches.
-- `--json` output and offline tests added.
+- Notices past their deadline and duplicate publications are dropped.
+- Results are ranked by a multilingual keyword relevance score and only the top 40 are printed by default. A normal week returns about 600 notices, mostly engineering and supervision; printing all of them would bury the agent in about 150 KB of text.
+- `--json`, `--all` and `--limit=N` options and offline tests added.
+- First live run (9 October 2026): 604 notices fetched, ranking tuned on those titles.

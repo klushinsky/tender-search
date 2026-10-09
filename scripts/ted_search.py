@@ -14,13 +14,20 @@ CPV codes searched:
   71420000  Landscape architectural services
 
 Usage:
-  python scripts/ted_search.py [days_back] [min_value_eur] [--json]
+  python scripts/ted_search.py [days_back] [min_value_eur] [--json] [--all] [--limit=N]
 
   days_back       Look back this many days by publication date (default 8)
   min_value_eur   Drop notices whose stated value is below this, in EUR
                   (default 0 = no filter). Notices with no stated value,
                   or a currency we cannot convert, are always kept.
   --json          Print JSON instead of the Discord digest.
+  --all           Print every open notice, not just the top matches.
+  --limit=N       How many top matches to print (default 40).
+
+Output is ranked by a keyword relevance score (see POSITIVE_STEMS and
+NEGATIVE_STEMS) because a normal week returns ~600 notices, most of them
+engineering, supervision or infrastructure. Notices whose deadline has
+already passed are dropped.
 
 Examples:
   python scripts/ted_search.py 8 250000
@@ -31,6 +38,7 @@ No dependencies beyond the Python 3.8+ standard library. No API key needed.
 import json
 import re
 import sys
+import unicodedata
 import urllib.error
 import urllib.request
 from datetime import date, datetime, timedelta
@@ -92,6 +100,104 @@ SKIP_KEYWORDS = [
 
 TITLE_LANGS = ("eng", "pol", "deu", "fra", "nld", "ces", "swe", "est", "lav", "gle")
 
+DEFAULT_LIMIT = 40  # notices printed by default; --all prints every match
+
+# --------------------------------------------------------------------------
+# Relevance ranking. A week on TED returns ~600 notices for these CPV codes,
+# most of them engineering, supervision or infrastructure. Titles are scored
+# with multilingual keyword stems so the digest leads with architecture,
+# urban design and competitions. Stems are matched on lowercase,
+# accent-stripped titles. Stems shorter than 5 characters, or starting with
+# "^", only match at the start of a word; longer stems match anywhere
+# (German compounds such as "Grundschule").
+# --------------------------------------------------------------------------
+
+POSITIVE_STEMS = [
+    # architecture
+    "architect", "architekt", "arquitect", "architett", "arhitekt", "arkitekt", "arkkiteht", "epitesz",
+    # urban design, masterplanning, landscape, public realm, heritage
+    "masterplan", "master plan", "plan directeur", "rahmenplan", "stadtebau", "urbanis", "urbanist",
+    "urban design", "stedenbouw", "zagospodarowan", "bauleitplan", "bebauungsplan", "amenagement",
+    "quartier", "freiraum", "freianlag", "landschaft", "landscape", "paysag", "public realm",
+    "espace public", "espaces publics", "spazio pubblico", "espacio publico", "renouvellement urbain",
+    "npnru", "revitali", "rewitaliz", "patrimon", "heritage", "denkmal", "plein", "platz", "planning",
+    # competitions
+    "wettbewerb", "concours", "konkurs", "competition", "concorso", "concurso", "soutez", "prijsvraag",
+    "tavling", "kilpailu",
+    # architectural design services by their local names
+    "objektplanung", "generalplan", "maitrise d'oeuvre", "maitre d'oeuvre", "moe", "auteur de projet",
+    "ontwerp", "design team", "koncepc", "proyecto basico", "progettazione", "hochbau", "innenarchitekt",
+    "inredning", "tervez", "neubau",
+    # building types
+    "schul", "school", "ecole", "college", "lycee", "szkol", "escuela", "colegio", "scuola", "gymnasium",
+    "kita", "kindergarten", "przedszkol", "creche", "campus", "universit", "hochschule", "bildung",
+    "^educat", "edukac", "dydaktyczn", "oktatas", "hospital", "hopital", "klinik", "szpital", "ospedale",
+    "krankenhaus", "healthcare", "zorgcentrum", "pflege", "ehpad", "museum", "musee", "muzeum", "museo",
+    "bibliothe", "bibliotek", "mediatheque", "library", "theater", "theatre", "teatr", "kultur", "^cultu",
+    "logement", "wohnbau", "wohnquartier", "wohnung", "housing", "woning", "woonwijk", "mieszkan",
+    "vivienda", "rathaus", "mairie", "hotel de ville", "town hall", "verwaltungsgebaude", "siedzib",
+    "stadion", "stadium", "arena", "sporthalle", "sportow", "widowisk", "gymnase", "piscine", "schwimm",
+    "mixed-use", "mixed use", "headquarter", "sede", "salle polyvalente", "feuerwehr", "polizei", "polic",
+    "justiz",
+]
+
+NEGATIVE_STEMS = [
+    # site supervision, contract engineer, project or claims management, checking
+    "nadzor", "inspektor", "uberwachung", "bauoberleitung", "uzraudz", "supervision", "supervisi",
+    "dozor", "tds", "inzynier", "projektsteuerung", "bauherrenvertretung", "projectmanag",
+    "projektmanag", "project manager", "nachtrag", "verifica",
+    # transport, utilities, energy
+    "railway", "kolejow", "dzelzcel", "^trate", "signal", "senaliz", "gazociag", "gaz-system",
+    "pipeline", "road", "drog", "kelio", "carretera", "autobahn", "bridge", "brucke", "tunnel", "kanal",
+    "sewer", "wastewater", "abwasser", "^water", "oczyszczal", "depuraz", "fibra optica", "fibre",
+    "fiber", "vaarweg", "hafen", "odnawialn", "fotowolt", "photovolt", "kv", "substation",
+    # MEP and other engineering-only scopes
+    "elektr", "electric", "sahko", "energieausweis", "energy audit", "audyt energ", "vermessung",
+    "geodez", "geodet", "survey", "topograf", "tiefbau", "ingenieurbau", "verkehrsanlage", "fernmelde",
+    "geotech", "brandschutz", "tragwerk", "tga", "hls", "hvac",
+    # not design work
+    "impression", "printing", "mantenimiento", "maintenance", "conservacion", "reinigung", "cleaning",
+]
+
+
+# Letters that Unicode does not decompose into base letter + accent.
+_FOLD_EXTRA = str.maketrans({
+    "’": "'", "‘": "'", "œ": "oe", "Œ": "oe", "ł": "l", "Ł": "l",
+    "ø": "o", "Ø": "o", "đ": "d", "Đ": "d", "ß": "ss", "æ": "ae",
+    "Æ": "ae", "ı": "i",
+})
+
+
+def _fold(text):
+    """Lowercase and strip accents so 'Maîtrise d’œuvre' matches "maitrise d'oeuvre" and 'szkoły' matches "szkol"."""
+    text = unicodedata.normalize("NFKD", text.translate(_FOLD_EXTRA))
+    return "".join(c for c in text if not unicodedata.combining(c)).lower()
+
+
+def _compile_stems(stems):
+    compiled = []
+    for stem in stems:
+        word_start = stem.startswith("^")
+        stem = _fold(stem.lstrip("^"))
+        pattern = re.escape(stem)
+        if word_start or len(stem) < 5:
+            pattern = r"\b" + pattern
+        compiled.append((stem, re.compile(pattern)))
+    return compiled
+
+
+_POSITIVE = _compile_stems(POSITIVE_STEMS)
+_NEGATIVE = _compile_stems(NEGATIVE_STEMS)
+
+
+def relevance(title, notice_type=""):
+    """Score a notice: +1 per positive stem (max 3), -2 per negative stem, +3 for a design contest."""
+    folded = _fold(title)
+    positive = [s for s, rx in _POSITIVE if rx.search(folded)]
+    negative = [s for s, rx in _NEGATIVE if rx.search(folded)]
+    score = min(len(positive), 3) - 2 * len(negative) + (3 if notice_type == "cn-desg" else 0)
+    return score, positive, negative
+
 
 # --------------------------------------------------------------------------
 # Field helpers. TED returns most fields as a list, or as a dict keyed by
@@ -148,13 +254,20 @@ def parse_date(value):
         return None
 
 
-def extract_deadline(dt_field, dd_field):
-    """Earliest parseable date from the tender deadline (DT), else DD."""
+def extract_deadline(dt_field, dd_field, today=None):
+    """Deadline from DT (tender receipt), else DD.
+
+    Multi-lot notices carry several dates and some carry stale ones, so this
+    returns the earliest date that is still upcoming. If every date has
+    passed it returns the latest one, which the caller treats as expired.
+    """
+    today = today or date.today()
     for field in (dt_field, dd_field):
         values = field if isinstance(field, list) else [field]
         dates = [d for d in (parse_date(v) for v in values if v) if d]
         if dates:
-            return min(dates)
+            upcoming = [d for d in dates if d >= today]
+            return min(upcoming) if upcoming else max(dates)
     return None
 
 
@@ -235,7 +348,7 @@ def fetch_notices(days_back):
 def search_ted(days_back=8, min_value_eur=0):
     """Returns (results, stats, error)."""
     raw, err = fetch_notices(days_back)
-    stats = {"fetched": len(raw), "skipped_keyword": 0, "skipped_value": 0}
+    stats = {"fetched": len(raw), "skipped_keyword": 0, "skipped_value": 0, "skipped_expired": 0}
     today = date.today()
 
     results = []
@@ -259,10 +372,14 @@ def search_ted(days_back=8, min_value_eur=0):
             stats["skipped_value"] += 1
             continue
 
-        deadline = extract_deadline(notice.get("DT"), notice.get("DD"))
+        deadline = extract_deadline(notice.get("DT"), notice.get("DD"), today)
+        if deadline and deadline < today:
+            stats["skipped_expired"] += 1
+            continue
         days_left = (deadline - today).days if deadline else None
         notice_type = _first(notice.get("notice-type")) or ""
         pub_date = parse_date(notice.get("PD"))
+        score, matched, penalised = relevance(title, notice_type)
 
         results.append({
             "title": title,
@@ -278,12 +395,39 @@ def search_ted(days_back=8, min_value_eur=0):
             "notice_type": notice_type,
             "notice_type_label": NOTICE_TYPE_LABELS.get(notice_type, notice_type),
             "url": f"https://ted.europa.eu/en/notice/-/detail/{pub_num}" if pub_num else "",
+            "relevance": score,
+            "matched": matched,
+            "penalised": penalised,
         })
 
-    # Soonest deadline first; notices without a deadline at the end.
-    results.sort(key=lambda r: (r["deadline"] is None, r["deadline"] or ""))
+    # The same tender often appears twice (a corrected re-publication, or one
+    # notice per lot). Keep the most recently published copy.
+    by_key = {}
+    for r in results:
+        key = (_fold(r["title"]), _fold(r["authority"]))
+        if key not in by_key or _pub_order(r["url"]) > _pub_order(by_key[key]["url"]):
+            by_key[key] = r
+    stats["duplicates"] = len(results) - len(by_key)
+    results = list(by_key.values())
+
+    # Most relevant first; within a score, soonest deadline first.
+    results.sort(key=lambda r: (-r["relevance"], r["deadline"] is None, r["deadline"] or ""))
     stats["kept"] = len(results)
+    stats["relevant"] = sum(1 for r in results if r["relevance"] > 0)
     return results, stats, err
+
+
+def _pub_order(url):
+    """Sort key for TED publication numbers like '.../694082-2026' -> (2026, 694082)."""
+    m = re.search(r"(\d+)-(\d{4})$", url or "")
+    return (int(m.group(2)), int(m.group(1))) if m else (0, 0)
+
+
+def select(results, limit=DEFAULT_LIMIT, show_all=False):
+    """Notices to print: every one with --all, else the top `limit` with a positive score."""
+    if show_all:
+        return results
+    return [r for r in results if r["relevance"] > 0][:limit]
 
 
 # --------------------------------------------------------------------------
@@ -319,14 +463,22 @@ def format_for_discord(results):
 
 def main(argv):
     args = [a for a in argv if not a.startswith("--")]
-    as_json = "--json" in argv
+    flags = [a for a in argv if a.startswith("--")]
+    as_json = "--json" in flags
+    show_all = "--all" in flags
+    limit = DEFAULT_LIMIT
+    for f in flags:
+        if f.startswith("--limit="):
+            limit = int(f.split("=", 1)[1])
     days = int(args[0]) if len(args) > 0 else 8
     min_value = float(args[1]) if len(args) > 1 else 0
 
     results, stats, err = search_ted(days, min_value)
+    shown = select(results, limit, show_all)
+    stats["shown"] = len(shown)
 
     if as_json:
-        print(json.dumps({"stats": stats, "error": err, "results": results},
+        print(json.dumps({"stats": stats, "error": err, "results": shown},
                          ensure_ascii=False, indent=2))
         return 1 if err and not results else 0
 
@@ -337,11 +489,19 @@ def main(argv):
         print("(partial results below)\n")
 
     print(
-        f"Found {stats['kept']} notices "
-        f"(fetched {stats['fetched']}, skipped {stats['skipped_keyword']} as MEP/engineering, "
-        f"{stats['skipped_value']} below {min_value:,.0f} EUR)\n"
+        f"Found {stats['kept']} open notices (fetched {stats['fetched']}; skipped "
+        f"{stats['skipped_keyword']} as MEP/engineering, {stats['skipped_value']} below "
+        f"{min_value:,.0f} EUR, {stats['skipped_expired']} past their deadline, "
+        f"{stats['duplicates']} duplicates)."
     )
-    print(format_for_discord(results))
+    if show_all:
+        print(f"Showing all {len(shown)}, most relevant first.\n")
+    else:
+        print(
+            f"{stats['relevant']} look like architecture or urban design work; showing the top "
+            f"{len(shown)} by relevance. Run with --all to see everything.\n"
+        )
+    print(format_for_discord(shown))
     return 0
 
 

@@ -46,8 +46,9 @@ Rules for editing prompts:
 ## The TED script
 
 ```
-python scripts/ted_search.py [days_back] [min_value_eur] [--json]
-python scripts/ted_search.py 8 250000          # what Part 1 runs
+python scripts/ted_search.py [days_back] [min_value_eur] [--json] [--all] [--limit=N]
+python scripts/ted_search.py 8 250000          # what Part 1 runs: top 40 by relevance
+python scripts/ted_search.py 8 250000 --all    # every open notice, ranked
 python scripts/ted_search.py 14 0 --json       # for debugging or other agents
 python -m unittest discover -s tests -v        # offline tests
 ```
@@ -59,7 +60,11 @@ Behaviour:
 - Drops titles matching `SKIP_KEYWORDS` (pure MEP and civil engineering, in English, German and Swedish).
 - `min_value_eur` drops notices whose stated value converts to less than the threshold. Notices with no value, or a currency not in `EUR_PER_UNIT`, are kept on purpose: many good design competitions and EOIs have no stated value.
 - `EUR_PER_UNIT` holds rough exchange rates used only for that threshold. Accuracy within about 10% is fine.
-- Output is sorted by deadline, soonest first, with ⚠️ on deadlines within 21 days.
+- Drops notices whose deadline has passed. Multi-lot notices can carry stale dates, so the deadline used is the earliest one still upcoming.
+- Merges duplicates (same title and client, e.g. a corrected re-publication), keeping the latest publication.
+- **Ranks by relevance.** A normal week returns about 600 notices for these CPV codes, most of them engineering, site supervision or infrastructure. `relevance()` scores each title with multilingual keyword stems: +1 per `POSITIVE_STEMS` hit (max 3), -2 per `NEGATIVE_STEMS` hit, +3 for a design contest. Titles are lowercased and accent-stripped first. Stems under 5 characters, or prefixed `^`, only match at a word start; longer ones match inside compounds like "Grundschule".
+- By default prints only the top 40 with a positive score (about 11 KB), sorted by score and then deadline, with ⚠️ on deadlines within 21 days. `--all` prints everything (about 150 KB in a normal week, too much for the cron agent). `--json` includes each notice's score and matched stems, which is the quickest way to debug a ranking.
+- Tuning: to change what ranks high, edit `POSITIVE_STEMS` / `NEGATIVE_STEMS` and add a case to the `Relevance` tests. Check the effect on a real week with `--all --json`.
 - On an HTTP or network error it prints the error plus any partial results, and exits 1 only if nothing came back.
 - Forces UTF-8 stdout so Polish characters and emoji don't crash on Windows pipes.
 
@@ -85,7 +90,8 @@ Ask Piotr before touching the Discord setup; it runs several other scheduled job
 
 ## Known issues and next steps
 
-- **Not yet verified against the live API after the cleanup.** The fixes (pagination, value filter, deadline flag) are covered by the offline tests, but the first real run should be checked: `python scripts/ted_search.py 8 250000` should report a fetched count well above 10 for a normal week.
+- **Verified against the live API on 9 October 2026:** 604 notices fetched over 3 pages, 532 after the MEP and value filters. The relevance ranking was tuned on that run's titles; the top 40 were design contests, Objektplanung and maîtrise d'oeuvre for schools, Kitas, housing and civic buildings, plus urban renewal and masterplan work. Re-check after any change to the stems.
+- **Ranking is title-only.** Titles in Greek, Bulgarian and other non-Latin scripts get no keyword hits, so they only surface as design contests. Fetching the main CPV code or the description would improve this.
 - **Inconsistent "What to look for" criteria across parts.** Part 1 includes ideas competitions and framework/roster agreements and says not to filter by value alone. Parts 2 and 3 have a shorter list, and Part 3 explicitly skips fully open competitions. Decide with Piotr whether to unify.
 - **No record of what was already posted.** De-duplication relies on the agent reading the last 30 messages in `#tenders` (Part 1 only). A small JSON log of posted TED publication numbers would let the script mark repeats as "seen before".
 - **Discord message length.** Digests can exceed Discord's 2,000 character limit, and the prompts don't say how to split them. Check whether posts ever arrive truncated; if so, add a splitting instruction to each prompt.
